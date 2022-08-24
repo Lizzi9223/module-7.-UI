@@ -1,20 +1,41 @@
-//Comparer Function    
-function SortByDate(a, b) { 
-    return new Date(b.create_date).getTime() - new Date(a.create_date).getTime();
-} 
+            
+            function SortByDate(a, b) { 
+                return new Date(b.create_date).getTime() - new Date(a.create_date).getTime();
+            } 
 
-var certificates = JSON.parse(localStorage.getItem('certificates'));    
-certificates.sort(SortByDate);
+            var certificates = JSON.parse(localStorage.getItem('certificates'));    
+            certificates.sort(SortByDate);
 
-        
-var listElm = document.querySelector('#coupons');
-var idx = 0;
+
+            var listElm = document.querySelector('#coupons');
+            var idx = 0;
 
             
             var loadMore = function() {
-              for (var i = 0; i < 5; i++, idx++) {
+                
+              for (var i = 0; i < 10; i++, idx++) {
+                  
+                if(window.searchParam != null){
+                    if(!certificates[idx].name.toLowerCase().includes(window.searchParam))
+                        continue;
+                }       
+                  
+                if(arguments.length>0){
+                    var contains = false;
+                    for(var j in certificates[idx].tags){
+                        if(arguments[0] == certificates[idx].tags[j]){
+                            contains = true;
+                            break;
+                        }                            
+                    }
+                    if(!contains)
+                        continue;
+                }
                   
                 if(idx>=certificates.length) idx=0;
+                  
+                var coupon_wrap = document.createElement('div');
+                coupon_wrap.classList.add('coupon-wrap');
                   
                 var coupon = document.createElement('div');
                 coupon.classList.add('coupon');
@@ -100,16 +121,81 @@ var idx = 0;
                   
                 coupon.appendChild(square);
                 coupon.appendChild(coupon_info);
-                listElm.appendChild(coupon);
+                coupon_wrap.appendChild(coupon);
+                listElm.appendChild(coupon_wrap);
               }
+            }
+            
+            
+            function scroll(event){
+                if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
+                    if(event.currentTarget.tagParam != null && event.currentTarget.tagParam != '') 
+                        loadMore(event.currentTarget.tagParam);
+                    else loadMore();
+                  }
             }
 
             
-            window.addEventListener('scroll', function() {
-              if (listElm.scrollTop + listElm.clientHeight >= listElm.scrollHeight) {
-                loadMore();
-              }
-            });
-
+            window.addEventListener('scroll', scroll, false);
             
             loadMore();
+
+
+
+            var findByTag = function(){
+                if(arguments.length>0){
+                  idx = 0;        
+                  listElm.textContent = '';
+                  loadMore(arguments[0]);
+                }
+                else{
+                  idx = 0;        
+                  listElm.textContent = '';
+                  loadMore();
+                }
+            }
+            
+            
+            
+            // CATEGORIES
+            
+            
+            var tags = JSON.parse(localStorage.getItem('tags'));
+            var listTags = document.querySelector('#categories');
+
+
+            for(var i = 0;  i < tags.length; i++){
+                
+                var category_wrap = document.createElement('div');
+                category_wrap.classList.add('category-wrap');
+                
+                var category = document.createElement('div');
+                category.classList.add('category');
+
+                var square = document.createElement('div');
+                square.classList.add('square');
+
+                var image = document.createElement('img');
+                image.src = tags[i].image_src;
+
+                var middle = document.createElement('div');
+                middle.classList.add('middle');
+
+                var text = document.createElement('div');
+                text.textContent = tags[i].name;
+                text.classList.add('text');
+                text.onclick = function() {
+                    findByTag(this.textContent);
+                };
+
+                middle.appendChild(text);
+                square.appendChild(image);
+                square.appendChild(middle);
+                category.appendChild(square);
+                category_wrap.appendChild(category);
+                listTags.appendChild(category_wrap);
+            }
+
+
+
+

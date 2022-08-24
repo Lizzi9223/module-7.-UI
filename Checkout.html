@@ -143,24 +143,27 @@
                     <div>Logo</div>
                 </div>
                 <div class="search">
-                    <form>
-                        <table cellspacing="0">
-                            <tr>
-                                <td><input type="text" name="search" placeholder="Search by item name"/></td>                        
-                                <td>
-                                    <select name="critetia" style="text-align: center">
-                                        <option disabled selected>All categories</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        </table>
-                    </form>
+                    <ul>
+                        <li><input class="search-input" onkeydown="searchByName()" type="text" name="search" placeholder="Search by item name"/></li>
+                        <li>
+                            <div class="dropdown-title" onclick="findByTag()" onmouseover="rotateImage()" onmouseout="rotateImageBack()">
+                                All categories&nbsp;&nbsp;
+                                <img style="height: 10px" src="images/expand_more_search.png">
+                            </div>
+                            <ul class="dropdown" onmouseover="rotateImage()" onmouseout="rotateImageBack()">
+                                <li id="li-dropdown-input">
+                                    <input id="dropdown-input" onkeydown="searchByTag()" type="text" placeholder="Search by tag..."/>
+                                    <img style="height: 15px" src="images/search.png">
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
                 <div class="buttons">
-                    <img src="images/heart.png" />
+                    <img src="images/favourite.svg" />
                     <img src="images/shopping_cart.png" />
                     <div>Login</div>
-                    <div>&nbsp;|&nbsp;</div>
+                    <span>&nbsp;|&nbsp;</span>
                     <div>Sign up</div>
                 </div>
             </div>
@@ -227,5 +230,9 @@
                 </div>
             </div>
         </div>
+        
+        
+        <script src="js/Header.js"></script>
+        
     </BODY>
 </HTML>

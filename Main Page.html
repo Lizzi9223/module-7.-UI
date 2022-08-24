@@ -23,59 +23,88 @@
                 position: absolute;
             }
             
-            #categories-wrap{
+            
+            #categories{
+                width: 100%;
+                text-align: center;
+                background-color: rgb(169, 169, 169, 0.6);
+                white-space: nowrap;
                 overflow-x: auto;
                 overflow-y: hidden;
-                width: 100%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background-color: rgb(169, 169, 169, 0.6);
-            }
+            }            
             
-            #categories{  
-                display: flex;
-                flex-direction: row;   
-                align-items: center;
-                justify-content: center; 
-                column-gap: 100px;
+            .category-wrap{  
+                display:inline-block;
+                white-space: normal;
+                margin: 2% 1%;
             }
             
             .category{
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
-                align-items: center;
-                margin-top: 30px;
-                margin-bottom: 15px;
+                align-items: center;                
             }
             
             .category .square {
-                min-height: 90px;
-                min-width: 90px;
-                margin-bottom: 7%;
-                background-color: white;
-                position: relative;
+                height: 120px;
+                width: 120px;
+                position: relative;                
             }
             
-            #coupons-wrap{
-                margin-top: 2%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
+            .category .square img{                           
+              height: 100%;
+              width: 100%;
+              transition: .5s ease;
+              backface-visibility: hidden;
             }
+                        
+            .category .middle {
+              transition: .5s ease;
+              opacity: 0;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              -ms-transform: translate(-50%, -50%);
+              text-align: center;
+            }
+
+            .category .square:hover img {
+              opacity: 0.3;
+            }
+
+            .category .square:hover .middle {
+                opacity: 1;
+                cursor: pointer;
+            }
+
+            .category .text {
+                width: 60px;
+                background-color: black;
+                color: white;
+                border-radius: 4px;
+                padding: 16px 32px;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
+            
+            
             
             #coupons{
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-                column-gap: 2%;
-            } 
+                text-align: center; 
+                width: 100%;
+            }             
+            
+            .coupon-wrap{
+                display: inline-block;
+                margin: 2% 1%;
+            }
             
             .coupon{
                 display: flex;
-                flex-direction: column;
-                margin-bottom: 2%;
+                flex-direction: column;                               
             }
             
             .coupon .square{
@@ -172,48 +201,6 @@
             
             
             
-            
-            .category .square img{
-              opacity: 1;
-              display: block;
-              width: 100%;
-              height: auto;
-              transition: .5s ease;
-              backface-visibility: hidden;
-            }
-            
-            
-            .category .middle {
-              transition: .5s ease;
-              opacity: 0;
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translate(-50%, -50%);
-              -ms-transform: translate(-50%, -50%);
-              text-align: center;
-            }
-
-            .category .square:hover img {
-              opacity: 0.3;
-            }
-
-            .category .square:hover .middle {
-                opacity: 1;
-                cursor: pointer;
-            }
-
-            .category .text {
-                max-width: 150px;
-                background-color: black;
-                color: white;
-                border-radius: 4px;
-                padding: 16px 32px;
-                text-overflow: ellipsis;
-                overflow: hidden;
-                white-space: nowrap;
-            }
-            
         </style>
         
         
@@ -236,18 +223,21 @@
                     <div>Logo</div>
                 </div>
                 <div class="search">
-                    <form>
-                        <table cellspacing="0">
-                            <tr>
-                                <td><input type="text" name="search" placeholder="Search by item name"/></td>                        
-                                <td>
-                                    <select name="critetia" style="text-align: center">
-                                        <option disabled selected>All categories</option>
-                                    </select>
-                                </td>
-                            </tr>
-                        </table>
-                    </form>
+                    <ul>
+                        <li><input class="search-input" onkeydown="searchByName()" type="text" name="search" placeholder="Search by item name"/></li>
+                        <li>
+                            <div class="dropdown-title" onclick="findByTag()" onmouseover="rotateImage()" onmouseout="rotateImageBack()">
+                                All categories&nbsp;&nbsp;
+                                <img style="height: 10px" src="images/expand_more_search.png">
+                            </div>
+                            <ul class="dropdown" onmouseover="rotateImage()" onmouseout="rotateImageBack()">
+                                <li id="li-dropdown-input">
+                                    <input id="dropdown-input" onkeydown="searchByTag()" type="text" placeholder="Search by tag..."/>
+                                    <img style="height: 15px" src="images/search.png">
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div>
                 <div class="buttons">
                     <img src="images/favourite.svg" />
@@ -257,501 +247,10 @@
                     <div>Sign up</div>
                 </div>
             </div>
+            
             <div class="body">                
-                <div id="categories-wrap">
-                    <div id="categories">
-                        <div class="category">
-                            <div class="square">
-                                <img src="images/event.png">
-                                <div class="middle">
-                                    <div class="text">Category lfjseijfcoijewojfiowejfijfojeiwjfoiwe</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="category">
-                            <div class="square"></div>
-                            <div>Category</div>
-                        </div>
-                        <div class="category">
-                            <div class="square"></div>
-                            <div>Category</div>
-                        </div>
-                        <div class="category">
-                            <div class="square"></div>
-                            <div>Category</div>
-                        </div>
-                        <div class="category">
-                            <div class="square"></div>
-                            <div>Category</div>
-                        </div>
-                        
-                    </div>
-                </div>
-                <div id="coupons-wrap">
-                    <div id="coupons"></div>
-                    
-<!--
-                    <div id="coupons">
-                        <div class="coupon">
-                            <div class="square">
-                                <img class="coupon-image" src="certificates_images/helicopter.jpg">
-                            </div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="coupon">
-                            <div class="square"></div>
-                            <div class="coupon-info">
-                                <div class="first-line">
-                                    <div class="coupon-name">
-                                        Coupon name
-                                    </div>
-                                    <div class="favourite">
-                                        <img src="images/favourite.svg"/>
-                                    </div>
-                                </div>
-                                <div class="second-line">
-                                    <div class="description">
-                                        Some brief description
-                                    </div>
-                                    <div class="expires">
-                                        Expires in 3 days
-                                    </div>
-                                </div>
-                                <hr>
-                                <div class="third-line">
-                                    <div class="price">
-                                        $235
-                                    </div>
-                                    <div class="add-button">
-                                        <input type="submit" value="Add to Cart" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        
-                        
-                        
-                        
-                    </div>
--->
-                </div>
+                <div id="categories"></div>                    
+                <div id="coupons"></div>                        
             </div>
         </div>
         
@@ -759,7 +258,7 @@
         <script src="js/LocalStorage.js"></script>
         <script src="js/CertificatesInfiniteScroll.js"></script>
         <script src="js/BackToPositionButton.js"></script>
-        
+        <script src="js/Header.js"></script>
         
         
     </BODY>
