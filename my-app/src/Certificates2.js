@@ -1,131 +1,124 @@
-import React from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import { format, parseISO } from "date-fns";
 import Pagination from '@vlsergey/react-bootstrap-pagination';
 
 import 'bootstrap/dist/css/bootstrap.min.css';  
 import './css/MainPage.css';
+import AddOrEditCertificate from "./AddOrEditCertificate";
 
-class Certificates extends React.Component{
+function Certificates(props){
+    const[certificates, setCertificates] = useState([]);
+    const[currentPage, setCurrentPage] = useState(0);
+    const[recordPerPage, setRecordPerPage] = useState(10);
+    const[totalPages, setTotalPages] = useState(0);
+    const[totalElements, setTotalElements] = useState(0);
+    const[creationDateSort, setCreationDateSort] = useState("desc");
+    const[nameSort, setNameSort] = useState("desc");
+    const[creationDateSortAngle, setCreationDateSortAngle] = useState(0);
+    const[nameSortAngle, setNameSortAngle] = useState(0);
+    const[sortParams, setSortParams] = useState('');
+    const[searchParams, setSearchParams] = useState('');
 
-    constructor(props){
-        super(props)
-        this.state ={
-            certificates:[],
-            currentPage:0,
-            recordPerPage:10,
-            totalPages:0,
-            totalElements:0,
-            creationDateSort:"desc",
-            nameSort:"desc",
-            creationDateSortAngle:0,
-            nameSortAngle:0,
-            sortParams:"",
-            searchParams: ""
-        }
+    const componentDidMount = () => {      
+        setSortParams("&sort=create_date," + creationDateSort + "&sort=name," + nameSort);
+        getCertificatesByPagination(currentPage);
     }
 
-    componentDidMount(){      
-        this.state.sortParams = "&sort=create_date," + this.state.creationDateSort + "&sort=name," + this.state.nameSort;
-        this.getCertificatesByPagination(this.state.currentPage);
-    }
-
-    componentWillReceiveProps = (nextProps) => {
-        if (nextProps.searchParams !== this.props.searchParams) {
-            this.getCertificatesByPagination(this.state.currentPage);
+    const componentWillReceiveProps = (nextProps) => {
+        //alert('q');
+        if (nextProps.searchParams !== props.searchParams) {
+            getCertificatesByPagination(currentPage);
         }
       }
 
-    getCertificatesByPagination(currentPage){
-        var searchParams = "";
+    const getCertificatesByPagination = (currentPage) => {
+        //alert('q');
+        var searchParams_ = "";
         var isAmpersandSet = false;
-        if(this.props.searchParams.name != null && this.props.searchParams.name !== ""){
+        if(props.searchParams.name != null && props.searchParams.name !== ""){
             searchParams += "name=";
-            searchParams += this.props.searchParams.name;
+            searchParams += props.searchParams.name;
             isAmpersandSet = true;
         }
-        if(this.props.searchParams.tags!= null && this.props.searchParams.tags.length!=0){
+        if(props.searchParams.tags!= null && props.searchParams.tags.length!=0){
             if(isAmpersandSet) searchParams += "&";
             searchParams += "tagNames=";
-            for(let i=0; i < this.props.searchParams.tags.length; i++){
-                searchParams += this.props.searchParams.tags[i];
+            for(let i=0; i < props.searchParams.tags.length; i++){
+                searchParams += props.searchParams.tags[i];
                 searchParams += ",";
             }
             searchParams = searchParams.slice(0, -1);
         }
-
         if(searchParams !== "") searchParams += "&";
-
-        this.setState({searchParams : searchParams});
+        setSearchParams(searchParams_);
 
         axios
-        .get("certificate?" + searchParams + "page=" + currentPage + "&size=" + this.state.recordPerPage + this.state.sortParams)
+        .get("certificate?" + searchParams + "page=" + currentPage + "&size=" + recordPerPage + sortParams)
         .then(response => response.data)
         .then((data) =>{
-            if(data.content)
-                this.setState({
-                    certificates:data.content,
-                    totalPages:data.totalPages,
-                    totalElements: data.totalElements,
-                    currentPage: data.number,
-                    recordPerPage: data.size
-                });
+            if(data.content){
+                setCertificates(data.content);
+                setTotalPages(data.totalPages);
+                setTotalElements(data.totalElements);
+                setCurrentPage(data.number);
+                setRecordPerPage(data.size);
+            }
         })
         .catch((error) => {
-            this.props.onMessageChange(error.response.data.errorMessage);
+            props.onMessageChange(error.response.data.errorMessage);
         });
     }    
 
-    handleChangePage = (e) =>{
-        this.state.currentPage = e.target.value;
-        this.getCertificatesByPagination(this.state.currentPage);
+    const handleChangePage = (e) =>{
+        setCurrentPage(e.target.value);
+        getCertificatesByPagination(currentPage);
     }
 
-    handleChangeSize = (e) =>{
-        this.state.recordPerPage = e.target.value;
-        this.getCertificatesByPagination(this.state.currentPage);
+    const handleChangeSize = (e) => {
+        setRecordPerPage(e.target.value);
+        getCertificatesByPagination(currentPage);
     }
 
-    sortByCreateDate = () =>{
-        if(this.state.creationDateSort == "desc"){
-            this.state.creationDateSortAngle = 180;
-            this.state.creationDateSort = "asc";
+    const sortByCreateDate = () =>{
+        if(creationDateSort == "desc"){
+            setCreationDateSortAngle(180);
+            setCreationDateSort("asc");
         }            
         else {
-            this.state.creationDateSortAngle = 0;
-            this.state.creationDateSort = "desc";
+            setCreationDateSortAngle(0);
+            setCreationDateSort("desc");
         }
-        this.state.sortParams = "&sort=create_date," + this.state.creationDateSort + "&sort=name," + this.state.nameSort;
-        this.getCertificatesByPagination(this.state.currentPage);
+        setSortParams("&sort=create_date," + creationDateSort + "&sort=name," + nameSort);
+        getCertificatesByPagination(currentPage);
     }
 
-    sortByName = () =>{
-        if(this.state.nameSort == "desc"){
-            this.state.nameSortAngle = 180;
-            this.state.nameSort = "asc";
+    const sortByName = () =>{
+        if(nameSort == "desc"){
+            setNameSortAngle(180);
+            setNameSort("asc");
         }            
         else{
-            this.state.nameSortAngle = 0;
-            this.state.nameSort = "desc";
+            setNameSortAngle(0);
+            setNameSort("desc");
         }
-        this.state.sortParams = "&sort=name," + this.state.nameSort + "&sort=create_date," + this.state.creationDateSort;
-        this.getCertificatesByPagination(this.state.currentPage);
+        setSortParams("&sort=name," + nameSort + "&sort=create_date," + creationDateSort);
+        getCertificatesByPagination(currentPage);
     }
 
-    render(){  
-        const {certificates} = this.state;
-        return(
-            <div className="certificate-table">
-                <table>
+     
+    return(
+        <div className="certificate-table">
+            <table>
                     <thead>
-                        <th onClick={this.sortByCreateDate}>
+                        <th onClick={sortByCreateDate}>
                             <img class="sortImage" 
-                                style={{"transform":"rotate("+this.state.creationDateSortAngle+"deg)"}} 
+                                style={{"transform":"rotate("+creationDateSortAngle+"deg)"}} 
                                 src={require('./images/arrow_drop_down.png')} />Datetime
                         </th>
-                        <th onClick={this.sortByName}>
+                        <th onClick={sortByName}>
                             <img class="sortImage" 
-                                style={{"transform":"rotate("+this.state.nameSortAngle+"deg)"}}  
+                                style={{"transform":"rotate("+nameSortAngle+"deg)"}}  
                                 src={require('./images/arrow_drop_down.png')} />Title
                         </th>
                         <th>Tags</th>
@@ -167,13 +160,13 @@ class Certificates extends React.Component{
                                         <td className="buttons" align="center">
                                             <button style={{"background" : "#0000CD"}}>View</button>
                                             <button 
-                                                onClick={() => this.props.onAddOrEditCertificate(true, true, certificates.id)}
+                                                onClick={() => props.onAddOrEditCertificate(true, true, certificates.id)}
                                                 style={{"background" : "#FFA500"}}
                                             >
                                                 Edit
                                             </button>
                                             <button 
-                                                onClick={() => this.props.onDeleteCertificate(true, certificates.id)} 
+                                                onClick={() => props.onDeleteCertificate(true, certificates.id)} 
                                                 style={{"background" : "#B22222"}}
                                             >
                                                     Delete
@@ -184,7 +177,7 @@ class Certificates extends React.Component{
                             )
                         }
                     </tbody>
-                </table>
+            </table>
 
                 <div className="pagination">
                     <Pagination 
@@ -192,21 +185,20 @@ class Certificates extends React.Component{
                         showFirstLast={true} 
                         showPrevNext={true} 
                         atBeginEnd={0} 
-                        value={this.state.currentPage} 
-                        totalPages={this.state.totalPages} 
-                        onChange={e => this.handleChangePage(e)}/>
+                        value={currentPage} 
+                        totalPages={totalPages} 
+                        onChange={e => handleChangePage(e)}/>
                 </div>
 
-                <div className="combobox" onChange={e => this.handleChangeSize(e)} value={this.state.recordPerPage}>
+                <div className="combobox" onChange={e => handleChangeSize(e)} value={recordPerPage}>
                     <select>
                         <option value="10">10</option>
                         <option value="20">20</option>
                         <option value="50">50</option>
                     </select>
                 </div>
-            </div>
-        )
-    }
+        </div>
+    )
 }
 
 export default Certificates;

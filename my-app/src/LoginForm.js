@@ -51,7 +51,7 @@ class LoginForm extends React.Component {
     //Prevent page reload
     event.preventDefault();
 
-    localStorage.clear(); //// TODO
+    localStorage.clear();
 
     const requestOptions = {
       login: this.state.username,
@@ -61,6 +61,7 @@ class LoginForm extends React.Component {
     axios.post('auth', requestOptions)
       .then(response => {
         localStorage.setItem('token', response.data.token);
+        localStorage.setItem('login', requestOptions.login);
         this.props.navigate('/certificates');
       })
       .catch((error) => {
