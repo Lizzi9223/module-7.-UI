@@ -1,110 +1,101 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useCookies } from "react-cookie";
 import axios from "axios";
 
 import './css/LoginForm.css';
 
-class LoginForm extends React.Component {
-  constructor (props) {
-    super(props);
-    this.state = {
-      username: '',
-      password: '',
-      errorMessages:{},
-      usernameValid: false,
-      passwordValid: false,
-      formValid: false
-    }
-  };
+function LoginForm(props){
+    const[username, setUsername] = useState('');
+    const[password, setPassword] = useState('');
+    const[errorMessages, setErrorMessages] = useState({});
+    const[usernameValid, setUsernameValid] = useState(false);
+    const[passwordValid, setPasswordValid] = useState(false);
+    const[formValid, setFormValid] = useState(false);
+    const [cookies, setCookie, removeCookie] = useCookies(["token","login","page"]);
 
-  handleUserInput = (e) => {
+    useEffect(() => {
+        validateForm();
+    }, [usernameValid, passwordValid]);
+
+    useEffect(() => {
+        validateForm();
+    }, [usernameValid, passwordValid]);
+
+
+  const handleUserInput = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-    this.setState({[name]: value}, () => { this.validateField(name, value) });
-  }
-
-  validateField(fieldName, value) {
-    var usernameValid = this.state.usernameValid;
-    var passwordValid = this.state.passwordValid;
-
-    switch(fieldName) {
-      case 'username':
-        usernameValid = value.length >= 3 && value.length <= 30;
-        break;
-      case 'password':
-        passwordValid = value.length >= 4 && value.length <= 30;
-        break;
-      default:
-        break;
+    let usernameValid_ = usernameValid;
+    let passwordValid_ = passwordValid;
+    switch(name) {
+        case 'username':
+            setUsername(value);
+            usernameValid_ = value.length >= 3 && value.length <= 30;
+            break;
+        case 'password':
+            setPassword(value);
+            passwordValid_ = value.length >= 4 && value.length <= 30;
+            break;
+        default:
+          break;
     }
-
-    this.setState({
-                    usernameValid: usernameValid,
-                    passwordValid: passwordValid
-                  }, this.validateForm);
+    
+    setUsernameValid(usernameValid_);
+    setPasswordValid(passwordValid_);
   }
 
-  validateForm() {
-    this.setState({formValid: (this.state.usernameValid && this.state.passwordValid) });
+  function validateForm() {
+    setFormValid(usernameValid && passwordValid);
   }
 
-  handleSubmit = (event) => {
-    //Prevent page reload
+  const handleSubmit = (event) => {
     event.preventDefault();
 
-    localStorage.clear();
-
     const requestOptions = {
-      login: this.state.username,
-      password: this.state.password
+      login: username,
+      password: password
     }
 
     axios.post('auth', requestOptions)
       .then(response => {
-        localStorage.setItem('token', response.data.token);
-        localStorage.setItem('login', requestOptions.login);
-        this.props.navigate('/certificates');
+        setCookie("token", response.data.token, { path: '/' });
+        setCookie("login", requestOptions.login, { path: '/' });
+        setCookie("page", 0, { path: '/' });
+        props.navigate('/certificates');        
       })
       .catch((error) => {
-        this.setState({errorMessages : { name: "credentials", message: error.response.data.errorMessage }});
+        setErrorMessages({errorMessages : { name: "credentials", message: error.response.data.errorMessage }});
       })
   }
 
-  renderErrorMessage = (name) => {
+  const renderErrorMessage = (name) => {
     return(
-      name === this.state.errorMessages.name && (
-        <div className="error">{this.state.errorMessages.message}</div>)
+      name === errorMessages.name && (
+        <div className="error">{errorMessages.message}</div>)
     );
   }
-
-  renderForm = () => {
-    return(
-      <div className="form">
-      <form onSubmit={this.handleSubmit}>
-        <div className="input-container">
-          <input type="text" name="username" value={this.state.username} onChange={this.handleUserInput}
-                required placeholder="Username" />
+  
+  return(      
+    <div className="login-form">
+      <div className="title">Login</div>
+        <div className="form">
+            <form onSubmit={handleSubmit}>
+                <div className="input-container">
+                <input type="text" name="username" value={username} onChange={handleUserInput}
+                        required placeholder="Username" />
+                </div>
+                <div className="input-container">
+                <input type="password" name="password" value={password} onChange={handleUserInput}
+                        required placeholder="Password" />
+                {renderErrorMessage("credentials")}
+                </div>
+                <div className="button-container">
+                <input type="submit" value="Login" disabled={formValid ? false : true}/>
+                </div>
+            </form>
         </div>
-        <div className="input-container">
-          <input type="password" name="password" value={this.state.password} onChange={this.handleUserInput}
-                required placeholder="Password" />
-          {this.renderErrorMessage("credentials")}
-        </div>
-        <div className="button-container">
-          <input type="submit" value="Login" disabled={this.state.formValid ? false : true}/>
-        </div>
-      </form>
-    </div>
-    );
-  }
-
-  render() {
-    return(      
-      <div className="login-form">
-        <div className="title">Login</div>
-        {this.renderForm()}
-      </div> 
-    )
-  }
+    </div> 
+  )  
 }
 
 export default LoginForm;

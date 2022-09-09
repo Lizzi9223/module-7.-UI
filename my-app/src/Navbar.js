@@ -1,39 +1,38 @@
 import React from "react";
+import { useCookies } from 'react-cookie';
 
 import "./css/Navbar.css"
 
-class Navbar extends React.Component {
-    constructor (props) {
-      super(props); 
-    };
+function Navbar(props){
+    const [cookies, setCookie, removeCookie] = useCookies(["token","login","page"]);
 
-    logout = () => {
-        localStorage.clear();
-        this.props.navigate('/login');
+    const logout = () => {
+        removeCookie("token");
+        removeCookie("login");
+        removeCookie("page");
+        props.navigate('/login');
     }
-
-    render(){
-        return(
-            <header>
-                <nav className="navbar">
-                    <div className="left">
-                        <a href="#">Admin UI</a> 
-                        <button className="buttons" 
-                            onClick={() => this.props.mainPageRef.current(false, true, 0)}
-                            style={{ display: (this.props.showButtons && localStorage.getItem('token') ) ? "inline-block" : "none" }}>
-                            Add new
-                        </button>
-                    </div>
-                    <div className="right" style={{ display: (this.props.showButtons && localStorage.getItem('token') ) 
-                                                                                ? "flex" : "none" }}>
-                        <button className="square"><img src="#"/></button>
-                        <button>{localStorage.getItem('login')}</button>
-                        <button onClick={this.logout}>Logout</button>
-                    </div>                
-                </nav>
-            </header>
-        )
-    }
+    
+    return(
+        <header>
+            <nav className="navbar">
+                <div className="left">
+                    <a href="#">Admin UI</a> 
+                    <button className="buttons" 
+                        onClick={() => props.mainPageRef.current(false, true, 0)}
+                        style={{ display: (props.showButtons && cookies.token ) ? "inline-block" : "none" }}>
+                        Add new
+                    </button>
+                </div>
+                <div className="right" style={{ display: (props.showButtons && cookies.token ) 
+                                                                            ? "flex" : "none" }}>
+                    <button className="square"><img src="#"/></button>
+                    <button>{cookies.login}</button>
+                    <button onClick={logout}>Logout</button>
+                </div>                
+            </nav>
+        </header>
+    )   
 }
 
 export default Navbar;

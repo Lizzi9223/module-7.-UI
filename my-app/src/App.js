@@ -2,7 +2,7 @@ import { Routes, Route, useNavigate } from "react-router-dom"
 import { useRef } from "react";
 
 import LoginForm from "./LoginForm"
-import MainPage from "./MainPage2"
+import MainPage from "./MainPage"
 import Navbar from './Navbar';
 
 function App(props) {

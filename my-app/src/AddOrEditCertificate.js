@@ -3,11 +3,10 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import axios from "axios";
 import { WithContext as ReactTags } from 'react-tag-input';
+import { useCookies } from 'react-cookie';
 
 import './css/Modals.css';
 import './css/ReactTags.css';
-
-axios.defaults.headers.common['Content-Type'] = 'application/json';
 
 function AddOrEditCertificate(props) {
   const [title, setTitle] = useState('');
@@ -17,12 +16,12 @@ function AddOrEditCertificate(props) {
   const [tags, setTags] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [modalCleared, setModalCleared] = useState(false);
   const [titleValid, setTitleValid] = useState(true);
   const [descriptionValid, setDescriptionValid] = useState(true);
   const [durationValid, setDurationValid] = useState(true);
   const [priceValid, setPriceValid] = useState(true);
   const [tagsValid, setTagsValid] = useState(true);
+  const [cookies, setCookie, removeCookie] = useCookies(["token"]);
 
   useEffect(() => {
     if(props.editCertificate && !dataLoaded){
@@ -54,14 +53,6 @@ function AddOrEditCertificate(props) {
   });
 
   useEffect(() => {
-
-    // setTitle('');
-    // setDescription('');
-    // setDuration();
-    // setPrice();
-    // setTags([]);
-    // setDataLoaded(true);
-
     axios
       .get("tag?page=0&size=2000")
       .then(response => response.data)
@@ -90,7 +81,7 @@ function AddOrEditCertificate(props) {
   
   const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
-  function addOrEditCertificate(){
+  function addOrEditCertificate(token){
     let tags_ = [];
     tags.map((tag) => {
       let tag_ = {
@@ -103,42 +94,67 @@ function AddOrEditCertificate(props) {
 
     let config = {
       headers: {
-        Authorization: 'Bearer ' + localStorage.getItem('token')
+        Authorization: 'Bearer ' + token
       }
     };
 
-    if(props.editCertificate){
-      axios
-        .put("certificate/" + props.id, {
-            name: title,
-            description: description,
-            price: price,
-            duration: duration,
-            tags: tags_
-          },
-          config)
-        .catch((error) => {
-          handleError(error, config);
-          return;
-        });
-    }else{      
-      axios
-        .post("certificate/", {
-            name: title,
-            description: description,
-            price: price,
-            duration: duration,
-            tags: tags_
-          },
-          config)
-        .catch((error) => {
-          handleError(error, config);
-          return;
-        });
+    let cert = {};
+    if(tags_.length > 0){
+      cert = {
+        name: title,
+        description: description,
+        price: price,
+        duration: duration,
+        tags: tags_    
+      }
+    } else{
+      cert = {
+        name: title,
+        description: description,
+        price: price,
+        duration: duration
+      }
     }
 
+    if(props.editCertificate){
+      const update = async() => {
+        await axios
+        .put("certificate/" + props.id, 
+              cert,
+              config)
+        .then(() => {
+          setStates();
+        })
+        .catch((error) => {
+          handleError(error, config);
+        });        
+      }      
+      update();      
+    }else{      
+      const create = async()=> {
+        await axios
+        .post("certificate/", 
+              cert,
+              config)
+        .then(() => {
+          setStates();
+        })
+        .catch((error) => {
+          handleError(error, config);
+        });
+      }
+      create();
+    }
+  }
+
+  function setStates(){
     setDataLoaded(false); 
-    props.onAddOrEditCertificate(false, false, 0)
+    setTitle('');
+    setDescription('');
+    setDuration();
+    setPrice();
+    setTags([]);
+    props.onAddOrEditCertificate(false, false, 0);
   }
 
   function handleError(error, config){
@@ -154,18 +170,15 @@ function AddOrEditCertificate(props) {
 
   function refreshToken(config){
     axios
-    .post("refresh", config)
+    .post("refresh", null, config)
     .then(response => {
-      (async () => {
-        await localStorage.setItem('token', response.data.token);
-        addOrEditCertificate(); 
-      })();
+      addOrEditCertificate(response.data.token);
     })
     .catch((error) => {
       if(error.response.data.errorMessage != null)
-        console.log(error.response.data.errorMessage);
+        props.onMessageChange(error.response.data.errorMessage);
       else
-        console.log(error.response.data.error);
+        props.onMessageChange(error.response.data.error);
     });                      
   }
 
@@ -209,6 +222,24 @@ function AddOrEditCertificate(props) {
 
     setTags(newTags);
   };
+
+  function onClose(){
+    setDataLoaded(false);
+
+    setTitleValid(true);
+    setDescriptionValid(true);
+    setDurationValid(true);
+    setPriceValid(true);
+    setTagsValid(true);
+
+    setTitle('');
+    setDescription('');
+    setDuration();
+    setPrice();
+    setTags([]);
+    
+    props.onAddOrEditCertificate(false, false, 0)
+  }
 
     return (
       <Modal {...props} size="lg" centered>
@@ -284,16 +315,8 @@ function AddOrEditCertificate(props) {
 
         </Modal.Body>
         <Modal.Footer>
-          <Button className="submit-button" onClick={() => addOrEditCertificate()}>Save</Button>
-          <Button className="cancel-button" onClick={() => {
-                                                      setDataLoaded(false);
-                                                      setTitleValid(true);
-                                                      setDescriptionValid(true);
-                                                      setDurationValid(true);
-                                                      setPriceValid(true);
-                                                      setTagsValid(true);
-                                                      props.onAddOrEditCertificate(false, false, 0)
-                                                    }}>
+          <Button className="submit-button" onClick={() => addOrEditCertificate(cookies.token)}>Save</Button>
+          <Button className="cancel-button" onClick={() => onClose()}>
             Close
           </Button>
         </Modal.Footer> <br/>

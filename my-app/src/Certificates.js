@@ -1,18 +1,22 @@
 import React from "react";
 import axios from "axios";
 import { format, parseISO } from "date-fns";
-import Pagination from '@vlsergey/react-bootstrap-pagination';
+import { instanceOf } from "prop-types";
+import { withCookies, Cookies } from "react-cookie";
 
+import Pagination from '@vlsergey/react-bootstrap-pagination';
 import 'bootstrap/dist/css/bootstrap.min.css';  
 import './css/MainPage.css';
 
 class Certificates extends React.Component{
+    static propTypes = {
+        cookies: instanceOf(Cookies).isRequired
+    };
 
     constructor(props){
         super(props)
         this.state ={
             certificates:[],
-            currentPage:0,
             recordPerPage:10,
             totalPages:0,
             totalElements:0,
@@ -27,12 +31,14 @@ class Certificates extends React.Component{
 
     componentDidMount(){      
         this.state.sortParams = "&sort=create_date," + this.state.creationDateSort + "&sort=name," + this.state.nameSort;
-        this.getCertificatesByPagination(this.state.currentPage);
+        const { cookies } = this.props; 
+        this.getCertificatesByPagination(cookies.get("page"));
     }
 
     componentWillReceiveProps = (nextProps) => {
         if (nextProps.searchParams !== this.props.searchParams) {
-            this.getCertificatesByPagination(this.state.currentPage);
+            const { cookies } = this.props;
+            this.getCertificatesByPagination(cookies.get("page"));
         }
       }
 
@@ -58,32 +64,36 @@ class Certificates extends React.Component{
 
         this.setState({searchParams : searchParams});
 
-        axios
-        .get("certificate?" + searchParams + "page=" + currentPage + "&size=" + this.state.recordPerPage + this.state.sortParams)
-        .then(response => response.data)
-        .then((data) =>{
-            if(data.content)
-                this.setState({
-                    certificates:data.content,
-                    totalPages:data.totalPages,
-                    totalElements: data.totalElements,
-                    currentPage: data.number,
-                    recordPerPage: data.size
+        const getCertificates = async () => {
+            await axios
+                .get("certificate?" + searchParams + "page=" + currentPage + "&size=" + this.state.recordPerPage + this.state.sortParams)
+                .then(response => response.data)
+                .then((data) =>{
+                    if(data.content)
+                        this.setState({
+                            certificates:data.content,
+                            totalPages:data.totalPages,
+                            totalElements: data.totalElements,                            
+                            recordPerPage: data.size
+                        });
+                })
+                .catch((error) => {
+                    this.props.onMessageChange(error.response.data.errorMessage);
                 });
-        })
-        .catch((error) => {
-            this.props.onMessageChange(error.response.data.errorMessage);
-        });
-    }    
+        };
+        getCertificates();        
+    } 
 
     handleChangePage = (e) =>{
-        this.state.currentPage = e.target.value;
-        this.getCertificatesByPagination(this.state.currentPage);
+        const { cookies } = this.props;        
+        cookies.set("page", e.target.value, { path: "/" });
+        this.getCertificatesByPagination(cookies.get("page"));
     }
 
     handleChangeSize = (e) =>{
         this.state.recordPerPage = e.target.value;
-        this.getCertificatesByPagination(this.state.currentPage);
+        const { cookies } = this.props;
+        this.getCertificatesByPagination(cookies.get("page"));
     }
 
     sortByCreateDate = () =>{
@@ -96,7 +106,8 @@ class Certificates extends React.Component{
             this.state.creationDateSort = "desc";
         }
         this.state.sortParams = "&sort=create_date," + this.state.creationDateSort + "&sort=name," + this.state.nameSort;
-        this.getCertificatesByPagination(this.state.currentPage);
+        const { cookies } = this.props;
+        this.getCertificatesByPagination(cookies.get("page"));
     }
 
     sortByName = () =>{
@@ -109,11 +120,13 @@ class Certificates extends React.Component{
             this.state.nameSort = "desc";
         }
         this.state.sortParams = "&sort=name," + this.state.nameSort + "&sort=create_date," + this.state.creationDateSort;
-        this.getCertificatesByPagination(this.state.currentPage);
+        const { cookies } = this.props;
+        this.getCertificatesByPagination(cookies.get("page"));
     }
 
     render(){  
         const {certificates} = this.state;
+        const { cookies } = this.props;
         return(
             <div className="certificate-table">
                 <table>
@@ -185,20 +198,20 @@ class Certificates extends React.Component{
                         }
                     </tbody>
                 </table>
-
+                
                 <div className="pagination">
                     <Pagination 
                         aroundCurrent={4} 
                         showFirstLast={true} 
                         showPrevNext={true} 
                         atBeginEnd={0} 
-                        value={this.state.currentPage} 
+                        value={cookies.get("page")}
                         totalPages={this.state.totalPages} 
                         onChange={e => this.handleChangePage(e)}/>
                 </div>
 
                 <div className="combobox" onChange={e => this.handleChangeSize(e)} value={this.state.recordPerPage}>
-                    <select>
+                    <select className="select">
                         <option value="10">10</option>
                         <option value="20">20</option>
                         <option value="50">50</option>
@@ -209,4 +222,4 @@ class Certificates extends React.Component{
     }
 }
 
-export default Certificates;
+export default withCookies(Certificates);
